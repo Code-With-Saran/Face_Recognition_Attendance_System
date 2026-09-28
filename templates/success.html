@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Complete</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 2rem; background: #f4f6f9; color: #333; }
+        .success-box { background: white; padding: 30px; max-width: 500px; margin: 0 auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .alert-info { background: #e8f4fd; border-left: 5px solid #007bff; padding: 15px; margin: 20px 0; text-align: left; border-radius: 4px; }
+        .topic-badge { display: inline-block; background: #343a40; color: #fff; padding: 8px 12px; font-family: monospace; font-size: 15px; border-radius: 4px; margin-top: 5px; word-break: break-all; }
+        .btn { display: inline-block; padding: 12px 25px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px; }
+        ol { padding-left: 20px; font-size: 14px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+<div class="success-box">
+    <h1 style="color: #28a745;">Registration Successful! ✓</h1>
+    <p>Your biometric details are securely registered into the local database matrix.</p>
+    
+    <div class="alert-info">
+        <strong>🔔 Step-by-Step Mobile Push Setup (100% Free):</strong>
+        <ol>
+            <li>Download the free <strong>ntfy</strong> app on your Android or iOS phone.</li>
+            <li>Open the app and tap the <strong>"+" (Subscribe to topic)</strong> button.</li>
+            <li>Type in your system routing topic parameter listed below exactly:</li>
+        </ol>
+        <center>
+            <span class="topic-badge" id="topic_display">Loading dynamic channel route...</span>
+        </center>
+    </div>
+    
+    <a href="/" class="btn" style="background:#007bff;">Go to Home Page to Login</a>
+</div>
+
+<script>
+    // Grab configuration fields back from local history configurations
+    // For local testing convenience, it reads from form metadata vectors dynamically
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        let name = prompt("Please re-confirm your capitalized registration name to view your mobile notification path key:") || "USER";
+        let role = prompt("Enter registration profile type role ('student' or 'teacher'):") || "student";
+        let uniqueId = prompt("Enter your Roll Number or Teacher ID:") || "ID";
+        
+        let cleanName = name.replace(/\s+/g, '_').toUpperCase();
+        let finalTopic = "attendance_" + role.toLowerCase() + "_" + cleanName + "_" + uniqueId.toUpperCase();
+        document.getElementById('topic_display').innerText = finalTopic;
+    } catch(e) {
+        document.getElementById('topic_display').innerText = "attendance_system_general_stream";
+    }
+</script>
+</body>
+</html>

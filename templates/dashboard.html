@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body{font-family:sans-serif; background:#f4f6f9; padding:2rem; text-align:center;}
+        .card{background:white; max-width:500px; margin:0 auto; padding:25px; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.1);}
+        .bar-container{margin:20px 0; text-align:left;}
+        .bar-label{font-weight:bold; margin-bottom:5px;}
+        .bar-outer{background:#e9ecef; border-radius:10px; width:100%; height:25px; overflow:hidden;}
+        .bar-inner{height:100%; color:white; text-align:right; padding-right:10px; line-height:25px; font-size:12px; transition:width 0.5s ease-style;}
+        .logout-btn{display:inline-block; margin-top:20px; padding:10px 20px; background:#dc3545; color:white; text-decoration:none; border-radius:4px;}
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Dashboard</h1>
+    <p>Logged in as: <strong>{{ username }}</strong></p>
+    <hr>
+    <h3>Attendance Tracking Metrics Visualization</h3>
+    
+    <div class="bar-container">
+        <div class="bar-label">Full-Day Present logs: {{ metrics['Full-Day Present'] }} days</div>
+        <div class="bar-outer"><div class="bar-inner" style="width: {{ [metrics['Full-Day Present']*10, 100]|min }}%; background:#28a745;"></div></div>
+    </div>
+
+    <div class="bar-container">
+        <div class="bar-label">Half-Day Present logs: {{ metrics['Half-Day Present'] }} days</div>
+        <div class="bar-outer"><div class="bar-inner" style="width: {{ [metrics['Half-Day Present']*10, 100]|min }}%; background:#ffc107; color:black;"></div></div>
+    </div>
+
+    <div class="bar-container">
+        <div class="bar-label">Absent system marks: {{ metrics['Absent'] }} days</div>
+        <div class="bar-outer"><div class="bar-inner" style="width: {{ [metrics['Absent']*10, 100]|min }}%; background:#dc3545;"></div></div>
+    </div>
+
+    <a href="/logout" class="logout-btn">Log Out Secure Session</a>
+</div>
+</body>
+</html>

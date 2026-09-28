@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Attendance Check</title>
+    <style>
+        body{font-family:sans-serif; text-align:center; padding:1rem; background:#f4f6f9;}
+        video, canvas {width:100%; max-width:480px; background:#222; border-radius:8px;}
+        .btn{padding:15px 30px; font-size:16px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer; margin-top:10px;}
+    </style>
+</head>
+<body>
+    <h1>Verification Gateway</h1>
+    <p>User account active: <strong>{{ username }}</strong> ({{ role.upper() }})</p>
+    <video id="webcam" autoplay playsinline></video>
+    <br>
+    <button class="btn" onclick="captureAndVerify()">Click Here to Put Attendance</button>
+    <canvas id="hidden_canvas" style="display:none;"></canvas>
+    <h3 id="result_output" style="margin-top:20px; color:#333;"></h3>
+
+<script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('hidden_canvas');
+    const resultOutput = document.getElementById('result_output');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => { alert("Webcam setup error: " + err); });
+
+    function captureAndVerify() {
+        resultOutput.innerText = "Processing biological array parameters... Please freeze position.";
+        resultOutput.style.color = "blue";
+        
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+
+        fetch('/process-attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: dataUrl })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                resultOutput.innerText = data.message + " Redirecting to dashboard analytics engine...";
+                resultOutput.style.color = "green";
+                setTimeout(() => { window.location.href = "/dashboard"; }, 3000);
+            } else {
+                resultOutput.innerText = data.message;
+                resultOutput.style.color = "red";
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Setup</title>
+    <style>
+        body{font-family:sans-serif; background:#f4f6f9; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;}
+        .login-box{background:white; padding:30px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); width:90%; max-width:360px;}
+        input, button{width:100%; padding:12px; margin:10px 0; box-sizing:border-box; border-radius:4px;}
+        button{background:#007bff; color:white; border:none; font-size:16px; cursor:pointer;}
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <h2>{{ role.upper() }} System Login</h2>
+    <form action="/verify-login" method="POST">
+        <input type="hidden" name="role" value="{{ role }}">
+        <input type="text" name="username" placeholder="User Name (Your Capitalized Name)" required>
+        <input type="password" name="password" placeholder="Password (Roll No / Teacher ID)" required>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>

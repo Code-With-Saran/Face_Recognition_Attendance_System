@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Form</title>
+    <style>
+        body{font-family:sans-serif; background:#f4f6f9; padding:1rem;}
+        .form-container{max-width:450px; margin:0 auto; background:white; padding:20px; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.1);}
+        input, select, button{width:100%; padding:10px; margin:8px 0; box-sizing:border-box; border-radius:4px; border:1px solid #ccc;}
+        video, canvas, img {width:100%; background:#333; border-radius:6px; margin-top:5px;}
+        .snap-btn{background:#dc3545; color:white; border:none; cursor:pointer; font-weight:bold;}
+        .file-label{display:block; text-align:center; padding:10px; background:#17a2b8; color:white; border-radius:4px; cursor:pointer; margin:8px 0; font-weight:bold;}
+        .submit-btn{background:#28a745; color:white; font-size:16px; font-weight:bold; cursor:pointer;}
+        .divider{text-align:center; margin:15px 0; font-weight:bold; color:#777;}
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>{{ role.upper() }} Registration</h2>
+    <form action="/submit-registration" method="POST" onsubmit="return validateForm()">
+        <input type="hidden" name="role" value="{{ role }}">
+        
+        <label>Name:</label>
+        <input type="text" name="name" required placeholder="Enter full name">
+        
+        <label>Department:</label>
+        <select name="department" required>
+            <option value="AI & DS">AI & DS</option><option value="CSE">CSE</option>
+            <option value="AGRI">AGRI</option><option value="MECH">MECH</option>
+            <option value="CIVIL">CIVIL</option><option value="BIOTECH">BIOTECH</option>
+        </select>
+        
+        {% if role == 'student' %}
+        <label>Batch Start Year:</label>
+        <select name="batch" required>
+            <option value="2023">2023</option><option value="2024">2024</option>
+            <option value="2025">2025</option><option value="2026">2026</option>
+            <option value="2027">2027</option><option value="2028">2028</option>
+            <option value="2029">2029</option><option value="2030">2030</option>
+        </select>
+        
+        <label>Roll Number:</label>
+        <input type="text" name="roll_number" required placeholder="e.g. 23CS01">
+        {% else %}
+        <label>Teachers ID:</label>
+        <input type="text" name="teachers_id" required placeholder="e.g. T101">
+        {% endif %}
+        
+        <label>Mobile Number (10 Digits):</label>
+        <input type="tel" name="mobile" id="mobile" maxlength="10" required placeholder="9876543210">
+        
+        <label>Photo Setup:</label>
+        <!-- Method A: Live Camera Box -->
+        <video id="video" autoplay playsinline></video>
+        <button type="button" class="snap-btn" onclick="takeSnapshot()">Take Live Photo</button>
+        
+        <div class="divider">─ OR ─</div>
+        
+        <!-- Method B: Direct File System / Android Gallery Access -->
+        <label for="file_input" class="file-label">Choose Photo / Open Native Camera</label>
+        <input type="file" id="file_input" accept="image/*" style="display:none;" onchange="handleFile(this)">
+        
+        <!-- Preview Window Area -->
+        <h4 style="margin-top:15px; margin-bottom:2px;">Selected Image Preview:</h4>
+        <img id="preview_img" style="display:none; background:#eee; min-height:150px; object-fit:contain;">
+        <canvas id="canvas" style="display:none;"></canvas>
+        
+        <input type="hidden" name="photo" id="photo_hidden" required>
+        <p id="snap_status" style="color:red; font-weight:bold; margin-top:5px;">No image selected yet.</p>
+        
+        <button type="submit" class="submit-btn">Submit Details</button>
+    </form>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const previewImg = document.getElementById('preview_img');
+    const photoHidden = document.getElementById('photo_hidden');
+    const statusText = document.getElementById('snap_status');
+
+    // Attempt to hook the hardware webcam stream
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(stream => { 
+            video.srcObject = stream; 
+            video.setAttribute('playsinline', true);
+            video.play();
+        })
+        .catch(err => { 
+            console.log("Hardware camera capture blocked: Use file upload fallback alternative.");
+            video.style.display = 'none';
+            document.querySelector('.snap-btn').style.display = 'none';
+        });
+
+    // Option A handler: Snapping from camera feed element
+    function takeSnapshot() {
+        if(video.videoWidth === 0) {
+            alert("No real video device feed detected. Please use the 'Choose Photo' button below instead.");
+            return;
+        }
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        photoHidden.value = dataUrl;
+        previewImg.src = dataUrl;
+        previewImg.style.display = 'block';
+        
+        statusText.innerText = "✓ Photo captured successfully from live camera stream.";
+        statusText.style.color = "green";
+    }
+
+    // Option B handler: Processing chosen file assets or mobile device camera snapshots
+    function handleFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const context = canvas.getContext('2d');
+                // Standardize size dimensions to optimize facial matching processing matrices
+                canvas.width = 640;
+                canvas.height = 480;
+                context.drawImage(img, 0, 0, 640, 480);
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                photoHidden.value = dataUrl;
+                previewImg.src = dataUrl;
+                previewImg.style.display = 'block';
+                
+                statusText.innerText = "✓ Photo successfully imported from local device storage storage.";
+                statusText.style.color = "green";
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function validateForm() {
+        const mobile = document.getElementById('mobile').value;
+        if(mobile.length !== 10 || isNaN(mobile)) {
+            alert("Mobile layout validation failed. Must be exactly 10 digits.");
+            return false;
+        }
+        if(!photoHidden.value || photoHidden.value === "") {
+            alert("Please select an image or snap a photo before submitting.");
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>
